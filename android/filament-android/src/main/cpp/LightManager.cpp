@@ -23,13 +23,6 @@
 using namespace filament;
 using namespace utils;
 
-extern "C" JNIEXPORT jint JNICALL
-Java_com_google_android_filament_LightManager_nGetComponentCount(JNIEnv*, jclass,
-        jlong nativeLightManager) {
-    LightManager *lm = (LightManager *) nativeLightManager;
-    return lm->getComponentCount();
-}
-
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_google_android_filament_LightManager_nHasComponent(JNIEnv*, jclass,
         jlong nativeLightManager, jint entity) {
@@ -73,8 +66,7 @@ Java_com_google_android_filament_LightManager_nBuilderCastShadows(JNIEnv*, jclas
 extern "C" JNIEXPORT void JNICALL
 Java_com_google_android_filament_LightManager_nBuilderShadowOptions(JNIEnv*, jclass,
         jlong nativeBuilder, jint mapSize, jfloat constantBias, jfloat normalBias, jfloat shadowFar,
-        jfloat shadowNearHint, jfloat shadowFarHint, jboolean stable,
-        jboolean screenSpaceContactShadows, jint stepCount, jfloat maxShadowDistance) {
+        jfloat shadowNearHint, jfloat shadowFarHint, jboolean stable) {
     LightManager::Builder *builder = (LightManager::Builder *) nativeBuilder;
     builder->shadowOptions(
             LightManager::ShadowOptions{.mapSize = (uint32_t)mapSize,
@@ -83,10 +75,7 @@ Java_com_google_android_filament_LightManager_nBuilderShadowOptions(JNIEnv*, jcl
                                         .shadowFar = shadowFar,
                                         .shadowNearHint = shadowNearHint,
                                         .shadowFarHint = shadowFarHint,
-                                        .stable = (bool)stable,
-                                        .screenSpaceContactShadows = (bool)screenSpaceContactShadows,
-                                        .stepCount = uint8_t(stepCount),
-                                        .maxShadowDistance = maxShadowDistance});
+                                        .stable = (bool)stable});
 }
 
 extern "C" JNIEXPORT void JNICALL

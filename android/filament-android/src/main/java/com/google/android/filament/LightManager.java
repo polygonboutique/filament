@@ -123,16 +123,6 @@ public class LightManager {
     }
 
     /**
-     * Returns the number of components in the LightManager, note that components are not
-     * guaranteed to be active. Use the {@link EntityManager#isAlive} before use if needed.
-     *
-     * @return number of component in the LightManager
-     */
-    public int getComponentCount() {
-        return nGetComponentCount(mNativeObject);
-    }
-
-    /**
      * Returns whether a particular Entity is associated with a component of this LightManager
      * @param entity An Entity.
      * @return true if this Entity has a component associated with this manager.
@@ -229,33 +219,6 @@ public class LightManager {
          * disabling, resulting in significantly lower resolution shadows, albeit stable ones.
          */
         public boolean stable = true;
-
-        /**
-         * Whether screen-space contact shadows are used. This applies regardless of whether a
-         * Renderable is a shadow caster.
-         * Screen-space contact shadows are typically useful in large scenes.
-         * (off by default)
-         */
-        public boolean screenSpaceContactShadows = false;
-
-        /**
-         * Number of ray-marching steps for screen-space contact shadows (8 by default).
-         *<p>
-         * <b>CAUTION:</b> this parameter is ignored for all lights except the directional/sun light,
-         *                 all other lights use the same value set for the directional/sun light.
-         *</p>
-         */
-        public int stepCount = 8;
-
-        /**
-         * Maximum shadow-occluder distance for screen-space contact shadows (world units).
-         * (30 cm by default)
-         *<p>
-         * <b>CAUTION:</b> this parameter is ignored for all lights except the directional/sun light,
-         *                 all other lights use the same value set for the directional/sun light.
-         *</p>
-         */
-        public float maxShadowDistance = 0.3f;
     }
 
 
@@ -317,8 +280,7 @@ public class LightManager {
         public Builder shadowOptions(@NonNull ShadowOptions options) {
             nBuilderShadowOptions(mNativeBuilder,
                     options.mapSize, options.constantBias, options.normalBias, options.shadowFar,
-                    options.shadowNearHint, options.shadowFarHint, options.stable,
-                    options.screenSpaceContactShadows, options.stepCount, options.maxShadowDistance);
+                    options.shadowNearHint, options.shadowFarHint, options.stable);
             return this;
         }
 
@@ -935,7 +897,6 @@ public class LightManager {
         return mNativeObject;
     }
 
-    private static native int nGetComponentCount(long nativeLightManager);
     private static native boolean nHasComponent(long nativeLightManager, int entity);
     private static native int nGetInstance(long nativeLightManager, int entity);
     private static native void nDestroy(long nativeLightManager, int entity);
@@ -944,7 +905,7 @@ public class LightManager {
     private static native void nDestroyBuilder(long nativeBuilder);
     private static native boolean nBuilderBuild(long nativeBuilder, long nativeEngine, int entity);
     private static native void nBuilderCastShadows(long nativeBuilder, boolean enable);
-    private static native void nBuilderShadowOptions(long nativeBuilder, int mapSize, float constantBias, float normalBias, float shadowFar, float shadowNearHint, float shadowFarhint, boolean stable, boolean screenSpaceContactShadows, int stepCount, float maxShadowDistance);
+    private static native void nBuilderShadowOptions(long nativeBuilder, int mapSize, float constantBias, float normalBias, float shadowFar, float shadowNearHint, float shadowFarhint, boolean stable);
     private static native void nBuilderCastLight(long nativeBuilder, boolean enabled);
     private static native void nBuilderPosition(long nativeBuilder, float x, float y, float z);
     private static native void nBuilderDirection(long nativeBuilder, float x, float y, float z);

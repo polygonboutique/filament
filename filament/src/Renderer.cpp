@@ -581,11 +581,6 @@ FrameGraphId<FrameGraphTexture> FRenderer::colorPass(FrameGraph& fg, const char*
                 data.color = blackboard.get<FrameGraphTexture>("color");
                 data.structure = blackboard.get<FrameGraphTexture>("structure");
 
-                if (config.hasContactShadows) {
-                    assert(data.structure.isValid());
-                    data.structure = builder.sample(data.structure);
-                }
-
                 if (data.ssr.isValid()) {
                     data.ssr = builder.sample(data.ssr);
                 }

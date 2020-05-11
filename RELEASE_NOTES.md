@@ -72,13 +72,6 @@ A new header is inserted each time a *tag* is created.
 - WebGL: Improved TypeScript annotations.
 - WebGL: Simplified callback API for glTF. (⚠ API Change)
 - gltfio: Removed deprecated "Bindings" API. (⚠ API Change)
-- gltfio: Added support for Draco.
-- gltfio: Reduced the size of the library.
-- Improved performance of SSAO.
-- Added support for screen-space contact shadows.
-- Added support for global fog.
-- Added support for bent normal maps and specular occlusion from bent normal maps.
-- Added support for shadow-casting spot lights.
 
 ## v1.4.5
 

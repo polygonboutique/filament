@@ -45,14 +45,6 @@ public:
 
     void terminate() noexcept;
 
-    size_t getComponentCount() const noexcept {
-        return mManager.getComponentCount();
-    }
-
-    utils::Entity const* getEntities() const noexcept {
-        return mManager.getEntities();
-    }
-
     bool hasComponent(utils::Entity e) const noexcept {
         return mManager.hasComponent(e);
     }

@@ -30,7 +30,7 @@ SamplerInterfaceBlock const& SibGenerator::getPerViewSib() noexcept {
     // TODO: ideally we'd want this to be constexpr, this is a compile time structure
     static SamplerInterfaceBlock sib = SamplerInterfaceBlock::Builder()
             .name("Light")
-            .add("shadowMap",     Type::SAMPLER_2D_ARRAY,   Format::SHADOW, Precision::MEDIUM)
+            .add("shadowMap",     Type::SAMPLER_2D_ARRAY,   Format::SHADOW, Precision::LOW)
             .add("records",       Type::SAMPLER_2D,         Format::UINT,   Precision::MEDIUM)
             .add("froxels",       Type::SAMPLER_2D,         Format::UINT,   Precision::MEDIUM)
             .add("iblDFG",        Type::SAMPLER_2D,         Format::FLOAT,  Precision::MEDIUM)

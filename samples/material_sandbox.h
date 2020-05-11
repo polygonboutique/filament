@@ -120,9 +120,6 @@ struct SandboxParameters {
     filament::View::AmbientOcclusionOptions ssaoOptions;
     filament::View::BloomOptions bloomOptions;
     filament::View::FogOptions fogOptions;
-    bool screenSpaceContactShadows = false;
-    int stepCount = 8;
-    float maxShadowDistance = 0.3;
     float cameraAperture = 16.0f;
     float cameraSpeed = 125.0f;
     float cameraISO = 100.0f;

@@ -552,7 +552,7 @@ void FView::computeVisibilityMasks(
         uint8_t visibleLayers,
         uint8_t const* UTILS_RESTRICT layers,
         FRenderableManager::Visibility const* UTILS_RESTRICT visibility,
-        uint8_t* UTILS_RESTRICT visibleMask, size_t count) {
+        uint8_t* UTILS_RESTRICT visibleMask, size_t count) const {
     // __restrict__ seems to only be taken into account as function parameters. This is very
     // important here, otherwise, this loop doesn't get vectorized.
     // This is vectorized 16x.
@@ -655,7 +655,6 @@ void FView::cleanupRenderPasses() const noexcept {
     auto& samplerGroup = mPerViewSb;
     samplerGroup.setSampler(PerViewSib::SSAO, {}, {});
     samplerGroup.setSampler(PerViewSib::SSR, {}, {});
-    samplerGroup.setSampler(PerViewSib::STRUCTURE, {}, {});
 }
 
 void FView::froxelize(FEngine& engine) const noexcept {

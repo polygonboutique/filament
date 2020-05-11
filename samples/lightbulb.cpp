@@ -228,9 +228,6 @@ static void setup(Engine* engine, View* view, Scene* scene) {
             .build(*engine, g_lights.back());
     scene->addEntity(g_lights.back());
 
-    lcm.setShadowOptions(lcm.getInstance(g_lights[0]), {
-            .screenSpaceContactShadows = true });
-
     view->setAmbientOcclusion(View::AmbientOcclusion::SSAO);
     view->setBloomOptions({ .enabled = true });
     view->setFogOptions({ .density=0.2, .enabled = true });

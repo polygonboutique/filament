@@ -38,22 +38,12 @@ void evaluateDirectionalLight(const MaterialInputs material,
     float visibility = 1.0;
 #if defined(HAS_SHADOWING)
     if (light.NoL > 0.0) {
-        float ssContactShadowOcclusion = 0.0;
-
-        if ((frameUniforms.directionalShadows & 1u) != 0u) {
+        if (frameUniforms.directionalShadows) {
             visibility = shadow(light_shadowMap, 0u, getLightSpacePosition());
+            #if defined(MATERIAL_HAS_AMBIENT_OCCLUSION)
+            visibility *= computeMicroShadowing(light.NoL, material.ambientOcclusion);
+            #endif
         }
-        if ((frameUniforms.directionalShadows & 0x2u) != 0u && visibility > 0.0) {
-            if (objectUniforms.screenSpaceContactShadows != 0u) {
-                ssContactShadowOcclusion = screenSpaceContactShadow(light.l);
-            }
-        }
-
-        visibility *= 1.0 - ssContactShadowOcclusion;
-
-        #if defined(MATERIAL_HAS_AMBIENT_OCCLUSION)
-        visibility *= computeMicroShadowing(light.NoL, material.ambientOcclusion);
-        #endif
     } else {
 #if defined(MATERIAL_CAN_SKIP_LIGHTING)
         return;

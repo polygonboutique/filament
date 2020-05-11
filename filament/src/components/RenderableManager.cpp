@@ -45,7 +45,6 @@ struct RenderableManager::BuilderDetails {
     bool mCulling : 1;
     bool mCastShadows : 1;
     bool mReceiveShadows : 1;
-    bool mScreenSpaceContactShadows : 1;
     bool mMorphingEnabled : 1;
     size_t mSkinningBoneCount = 0;
     Bone const* mUserBones = nullptr;
@@ -53,7 +52,7 @@ struct RenderableManager::BuilderDetails {
 
     explicit BuilderDetails(size_t count)
             : mEntries(count), mCulling(true), mCastShadows(false), mReceiveShadows(true),
-              mScreenSpaceContactShadows(false), mMorphingEnabled(false) {
+              mMorphingEnabled(false) {
     }
     // this is only needed for the explicit instantiation below
     BuilderDetails() = default;
@@ -133,11 +132,6 @@ RenderableManager::Builder& RenderableManager::Builder::castShadows(bool enable)
 
 RenderableManager::Builder& RenderableManager::Builder::receiveShadows(bool enable) noexcept {
     mImpl->mReceiveShadows = enable;
-    return *this;
-}
-
-RenderableManager::Builder& RenderableManager::Builder::screenSpaceContactShadows(bool enable) noexcept {
-    mImpl->mScreenSpaceContactShadows = enable;
     return *this;
 }
 
@@ -285,7 +279,6 @@ void FRenderableManager::create(
         setPriority(ci, builder->mPriority);
         setCastShadows(ci, builder->mCastShadows);
         setReceiveShadows(ci, builder->mReceiveShadows);
-        setScreenSpaceContactShadows(ci, builder->mScreenSpaceContactShadows);
         setCulling(ci, builder->mCulling);
         setSkinning(ci, false);
         setMorphing(ci, builder->mMorphingEnabled);
@@ -580,10 +573,6 @@ void RenderableManager::setCastShadows(Instance instance, bool enable) noexcept 
 
 void RenderableManager::setReceiveShadows(Instance instance, bool enable) noexcept {
     upcast(this)->setReceiveShadows(instance, enable);
-}
-
-void RenderableManager::setScreenSpaceContactShadows(Instance instance, bool enable) noexcept {
-    upcast(this)->setScreenSpaceContactShadows(instance, enable);
 }
 
 bool RenderableManager::isShadowCaster(Instance instance) const noexcept {

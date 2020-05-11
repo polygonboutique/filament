@@ -142,9 +142,8 @@ Light getLight(const uint index) {
         light.attenuation *= getAngleAttenuation(-directionIES.xyz, light.l, scaleOffsetShadowType.xy);
         uint shadowBits = floatBitsToUint(scaleOffsetShadowType.z);
         light.castsShadows = bool(shadowBits & 0x1u);
-        light.contactShadows = bool((shadowBits >> 1u) & 0x1u);
-        light.shadowIndex = (shadowBits >> 2u) & 0xFu;
-        light.shadowLayer = (shadowBits >> 6u) & 0xFu;
+        light.shadowIndex = ((shadowBits & 0x01Eu) >> 1u);
+        light.shadowLayer = ((shadowBits & 0x1E0u) >> 5u);
     }
 
     return light;
@@ -174,23 +173,17 @@ void evaluatePunctualLights(const PixelParams pixel, inout vec3 color) {
         Light light = getLight(index);
         float visibility = 1.0;
 #if defined(HAS_SHADOWING)
-        if (light.NoL > 0.0){
-            if (light.castsShadows) {
-                visibility = shadow(light_shadowMap, light.shadowLayer,
-                getSpotLightSpacePosition(light.shadowIndex));
-            }
-            if (light.contactShadows && visibility > 0.0) {
-                if (objectUniforms.screenSpaceContactShadows != 0u) {
-                    visibility *= 1.0 - screenSpaceContactShadow(light.l);
-                }
-            }
+        if (light.castsShadows && light.NoL > 0.0) {
+            visibility = shadow(light_shadowMap, light.shadowLayer,
+                    getSpotLightSpacePosition(light.shadowIndex));
         }
 #endif
 #if defined(MATERIAL_CAN_SKIP_LIGHTING)
-        if (light.NoL <= 0.0) {
-            continue;
+        if (light.NoL > 0.0) {
+            color.rgb += surfaceShading(pixel, light, visibility);
         }
-#endif
+#else
         color.rgb += surfaceShading(pixel, light, visibility);
+#endif
     }
 }

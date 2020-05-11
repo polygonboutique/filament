@@ -222,7 +222,6 @@ static void setup(Engine* engine, View*, Scene* scene) {
         if (!instance) continue;
 
         rcm.setCastShadows(instance, g_params.castShadows);
-        rcm.setScreenSpaceContactShadows(instance, true);
 
         if (!g_singleMode || count == 0) {
             for (size_t i = 0; i < rcm.getPrimitiveCount(instance); i++) {
@@ -520,14 +519,6 @@ static void gui(filament::Engine* engine, filament::View*) {
             ImGui::SliderFloat("Halo size", &params.sunHaloSize, 1.01f, 40.0f);
             ImGui::SliderFloat("Halo falloff", &params.sunHaloFalloff, 0.0f, 2048.0f);
             ImGuiExt::DirectionWidget("Direction", params.lightDirection.v);
-            ImGui::Indent();
-            if (ImGui::CollapsingHeader("Contact Shadows")) {
-                DebugRegistry& debug = engine->getDebugRegistry();
-                ImGui::Checkbox("Enabled##contactShadows", &params.screenSpaceContactShadows);
-                ImGui::SliderInt("Steps", &params.stepCount, 0, 255);
-                ImGui::SliderFloat("Distance", &params.maxShadowDistance, 0.0f, 10.0f);
-            }
-            ImGui::Unindent();
         }
 
         if (ImGui::CollapsingHeader("Spot Light")) {
@@ -643,9 +634,6 @@ static void gui(filament::Engine* engine, filament::View*) {
     options.constantBias = params.constantBias;
     options.polygonOffsetConstant = params.polygonOffsetConstant;
     options.polygonOffsetSlope = params.polygonOffsetSlope;
-    options.screenSpaceContactShadows = params.screenSpaceContactShadows;
-    options.stepCount = params.stepCount;
-    options.maxShadowDistance = params.maxShadowDistance;
     lcm.setShadowOptions(lightInstance, options);
 
     if (params.spotLightEnabled && !params.hasSpotLight) {

@@ -132,17 +132,12 @@ bool ShadowMapManager::update(FEngine& engine, FView& view, UniformBuffer& perVi
     uint8_t visibleLayers = view.getVisibleLayers();
     const uint16_t textureSize = mTextureState.size;
 
-    uint32_t directionalShadows = 0;
-    float screenSpaceShadowDistance = 0.0;
-
     auto& lcm = engine.getLightManager();
     if (mDirectionalShadowMap) {
         // Compute the frustum for the directional light.
         ShadowMap& shadowMap = *mDirectionalShadowMap.getShadowMap();
         size_t l = mDirectionalShadowMap.getLightIndex();
         assert(l == 0);
-
-        FLightManager::Instance light = lightData.elementAt<FScene::LIGHT_INSTANCE>(l);
 
         const size_t textureDimension = mDirectionalShadowMap.getLayout().size;
         const ShadowMap::ShadowMapLayout layout{
@@ -164,39 +159,29 @@ bool ShadowMapManager::update(FEngine& engine, FView& view, UniformBuffer& perVi
             mat4f const& lightFromWorldMatrix = shadowMap.getLightSpaceMatrix();
             u.setUniform(offsetof(PerViewUib, lightFromWorldMatrix), lightFromWorldMatrix);
 
+            FLightManager::Instance light = lightData.elementAt<FScene::LIGHT_INSTANCE>(l);
             const float texelSizeWorldSpace = shadowMap.getTexelSizeWorldSpace();
             const float normalBias = lcm.getShadowNormalBias(light);
             u.setUniform(offsetof(PerViewUib, shadowBias),
                     float3{0, normalBias * texelSizeWorldSpace, 0});
 
             hasShadowing = true;
-            directionalShadows |= 0x1u;
         }
     }
 
-    // screen-space contact shadows for the directional light
-    FLightManager::Instance directionalLight = lightData.elementAt<FScene::LIGHT_INSTANCE>(0);
-    LightManager::ShadowOptions const& options = lcm.getShadowOptions(directionalLight);
-    screenSpaceShadowDistance = options.maxShadowDistance;
-    directionalShadows |= std::min(uint8_t(255u), options.stepCount) << 8u;
-    if (options.screenSpaceContactShadows) {
-        hasShadowing = true;
-        directionalShadows |= 0x2u;
-    }
+    perViewUb.setUniform(offsetof(PerViewUib, directionalShadows),
+            mDirectionalShadowMap && mDirectionalShadowMap.getShadowMap()->hasVisibleShadows());
 
-    perViewUb.setUniform(offsetof(PerViewUib, directionalShadows), directionalShadows);
-    perViewUb.setUniform(offsetof(PerViewUib, ssContactShadowDistance), screenSpaceShadowDistance);
-
-    // shadow-map shadows for point/spot lights
     FScene::ShadowInfo* const shadowInfo = lightData.data<FScene::SHADOW_INFO>();
-    for (size_t i = 0, c = mSpotShadowMaps.size(); i < c; i++) {
+
+    for (size_t i = 0; i < mSpotShadowMaps.size(); i++) {
         auto& entry = mSpotShadowMaps[i];
 
         // compute the frustum for this light
         ShadowMap& shadowMap = *entry.getShadowMap();
-        size_t l = entry.getLightIndex();
+        size_t l = mSpotShadowMaps[i].getLightIndex();
 
-        const size_t textureDimension = entry.getLayout().size;
+        const size_t textureDimension = mSpotShadowMaps[i].getLayout().size;
         const ShadowMap::ShadowMapLayout layout{
                 .zResolution = mTextureZResolution,
                 .atlasDimension = textureSize,
@@ -204,8 +189,6 @@ bool ShadowMapManager::update(FEngine& engine, FView& view, UniformBuffer& perVi
                 .shadowDimension = textureDimension - 2
         };
         shadowMap.update(lightData, l, scene, viewingCameraInfo, visibleLayers, layout);
-
-        FLightManager::Instance light = lightData.elementAt<FScene::LIGHT_INSTANCE>(l);
         if (shadowMap.hasVisibleShadows()) {
             entry.setHasVisibleShadows(true);
 
@@ -223,6 +206,7 @@ bool ShadowMapManager::update(FEngine& engine, FView& view, UniformBuffer& perVi
             shadowInfo[l].index = i;
             shadowInfo[l].layer = mSpotShadowMaps[i].getLayout().layer;
 
+            FLightManager::Instance light = lightData.elementAt<FScene::LIGHT_INSTANCE>(l);
             const float3 dir = lightData.elementAt<FScene::DIRECTION>(l);
             const float texelSizeWorldSpace = shadowMap.getTexelSizeWorldSpace();
             const float normalBias = lcm.getShadowNormalBias(light);
@@ -230,18 +214,6 @@ bool ShadowMapManager::update(FEngine& engine, FView& view, UniformBuffer& perVi
                     float4{ dir.x, dir.y, dir.z, normalBias * texelSizeWorldSpace });
 
             hasShadowing = true;
-        }
-    }
-
-    // screen-space contact shadows for point/spot lights
-    auto pInstance = lightData.data<FScene::LIGHT_INSTANCE>();
-    for (size_t i = 0, c = lightData.size(); i < c; i++) {
-        // screen-space contact shadows
-        LightManager::ShadowOptions const& shadowOptions = lcm.getShadowOptions(pInstance[i]);
-        if (shadowOptions.screenSpaceContactShadows) {
-            hasShadowing = true;
-            shadowInfo[i].contactShadows = true;
-            // TODO: distance/steps are always taken from the directional light currently
         }
     }
 

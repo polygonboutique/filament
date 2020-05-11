@@ -77,7 +77,7 @@ UniformInterfaceBlock const& UibGenerator::getPerViewUib() noexcept  {
             .add("iblRoughnessOneLevel",    1, UniformInterfaceBlock::Type::FLOAT)
             .add("cameraFar",               1, UniformInterfaceBlock::Type::FLOAT)
             .add("refractionLodOffset",     1, UniformInterfaceBlock::Type::FLOAT)
-            .add("directionalShadows",      1, UniformInterfaceBlock::Type::UINT)
+            .add("directionalShadows",      1, UniformInterfaceBlock::Type::BOOL)
             // view
             .add("worldOffset",             1, UniformInterfaceBlock::Type::FLOAT3)
             .add("ssContactShadowDistance", 1, UniformInterfaceBlock::Type::FLOAT)
@@ -108,8 +108,7 @@ UniformInterfaceBlock const& UibGenerator::getPerRenderableUib() noexcept {
             .add("morphWeights", 1, UniformInterfaceBlock::Type::FLOAT4, Precision::HIGH)
             .add("skinningEnabled", 1, UniformInterfaceBlock::Type::INT)
             .add("morphingEnabled", 1, UniformInterfaceBlock::Type::INT)
-            .add("screenSpaceContactShadows", 1, UniformInterfaceBlock::Type::UINT)
-            .add("padding0", 1, UniformInterfaceBlock::Type::FLOAT)
+            .add("padding0", 1, UniformInterfaceBlock::Type::FLOAT2)
             .build();
     return uib;
 }

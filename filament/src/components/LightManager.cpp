@@ -185,9 +185,6 @@ void FLightManager::create(const FLightManager::Builder& builder, utils::Entity 
         shadowParams.options.stable = builder->mShadowOptions.stable;
         shadowParams.options.polygonOffsetConstant = builder->mShadowOptions.polygonOffsetConstant;
         shadowParams.options.polygonOffsetSlope = builder->mShadowOptions.polygonOffsetSlope;
-        shadowParams.options.screenSpaceContactShadows = builder->mShadowOptions.screenSpaceContactShadows;
-        shadowParams.options.stepCount = builder->mShadowOptions.stepCount;
-        shadowParams.options.maxShadowDistance = builder->mShadowOptions.maxShadowDistance;
 
         // set default values by calling the setters
         setLocalPosition(i, builder->mPosition);
@@ -382,19 +379,12 @@ void FLightManager::setShadowCaster(Instance i, bool shadowCaster) noexcept {
 
 using namespace details;
 
-size_t LightManager::getComponentCount() const noexcept {
-    return upcast(this)->getComponentCount();
-}
-
-utils::Entity const* LightManager::getEntities() const noexcept {
-    return upcast(this)->getEntities();
-}
-
 bool LightManager::hasComponent(Entity e) const noexcept {
     return upcast(this)->hasComponent(e);
 }
 
-LightManager::Instance LightManager::getInstance(Entity e) const noexcept {
+LightManager::Instance
+LightManager::getInstance(Entity e) const noexcept {
     return upcast(this)->getInstance(e);
 }
 

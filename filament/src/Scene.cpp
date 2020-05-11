@@ -185,7 +185,8 @@ void FScene::updateUBOs(utils::Range<uint32_t> visibleRenderables, backend::Hand
         const size_t offset = i * sizeof(PerRenderableUib);
 
         UniformBuffer::setUniform(buffer,
-                offset + offsetof(PerRenderableUib, worldFromModelMatrix), model);
+                offset + offsetof(PerRenderableUib, worldFromModelMatrix),
+                model);
 
         // Using mat3f::getTransformForNormals handles non-uniform scaling, but DOESN'T guarantee that
         // the transformed normals will have unit-length, therefore they need to be normalized
@@ -208,7 +209,6 @@ void FScene::updateUBOs(utils::Range<uint32_t> visibleRenderables, backend::Hand
         // initialize all 32 bits in the UBO field.
 
         FRenderableManager::Visibility visibility = sceneData.elementAt<VISIBILITY_STATE>(i);
-        hasContactShadows = hasContactShadows || visibility.screenSpaceContactShadows;
         UniformBuffer::setUniform(buffer,
                 offset + offsetof(PerRenderableUib, skinningEnabled),
                 uint32_t(visibility.skinning));
@@ -216,10 +216,6 @@ void FScene::updateUBOs(utils::Range<uint32_t> visibleRenderables, backend::Hand
         UniformBuffer::setUniform(buffer,
                 offset + offsetof(PerRenderableUib, morphingEnabled),
                 uint32_t(visibility.morphing));
-
-        UniformBuffer::setUniform(buffer,
-                offset + offsetof(PerRenderableUib, screenSpaceContactShadows),
-                uint32_t(visibility.screenSpaceContactShadows));
 
         UniformBuffer::setUniform(buffer,
                 offset + offsetof(PerRenderableUib, morphWeights),
@@ -404,23 +400,14 @@ void FScene::setSkybox(FSkybox* skybox) noexcept {
 }
 
 bool FScene::hasContactShadows() const noexcept {
-    // find out if at least one light has contact-shadow enabled
-    // TODO: cache the the result of this Loop in the LightManager
-    bool hasContactShadows = false;
+    bool hasContactShadows = mHasContactShadows;
     auto& lcm = mEngine.getLightManager();
-    auto pFirst = mLightData.begin<LIGHT_INSTANCE>();
-    auto pLast = mLightData.end<LIGHT_INSTANCE>();
-    while (pFirst != pLast && !hasContactShadows) {
-        if (pFirst->isValid()) {
-            auto const& shadowOptions = lcm.getShadowOptions(*pFirst);
-            hasContactShadows = shadowOptions.screenSpaceContactShadows;
-        }
-        ++pFirst;
+    FLightManager::Instance directionalLight = mLightData.elementAt<LIGHT_INSTANCE>(0);
+    if (directionalLight.isValid()) {
+        auto const& shadowOoptions = lcm.getShadowOptions(directionalLight);
+        hasContactShadows = false;
     }
-
-    // at least some renderables in the scene must have contact-shadows enabled
-    // TODO: we should refine this with only the visible ones
-    return hasContactShadows && mHasContactShadows;
+    return hasContactShadows;
 }
 
 } // namespace details

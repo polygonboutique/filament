@@ -21,7 +21,6 @@
 #include <filament/Color.h>
 
 #include <utils/compiler.h>
-#include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 
 #include <math/mathfwd.h>
@@ -146,21 +145,6 @@ public:
     using Instance = utils::EntityInstance<LightManager>;
 
     /**
-     * Returns the number of component in the LightManager, not that component are not
-     * guaranteed to be active. Use the EntityManager::isAlive() before use if needed.
-     *
-     * @return number of component in the LightManager
-     */
-    size_t getComponentCount() const noexcept;
-
-    /**
-     * Returns the list of Entity for all components. Use getComponentCount() to know the size
-     * of the list.
-     * @return a pointer to Entity
-     */
-    utils::Entity const* getEntities() const noexcept;
-
-    /**
      * Returns whether a particular Entity is associated with a component of this LightManager
      * @param e An Entity.
      * @return true if this Entity has a component associated with this manager.
@@ -249,33 +233,6 @@ public:
          * Setting this value correctly is essential for LISPSM shadow-maps.
          */
         float polygonOffsetSlope = 2.0f;
-
-        /**
-         * Whether screen-space contact shadows are used. This applies regardless of whether a
-         * Renderable is a shadow caster.
-         * Screen-space contact shadows are typically useful in large scenes.
-         * (off by default)
-         */
-        bool screenSpaceContactShadows = false;
-
-        /**
-         * Number of ray-marching steps for screen-space contact shadows (8 by default).
-         *
-         * CAUTION: this parameter is ignored for all lights except the directional/sun light,
-         *          all other lights use the same value set for the directional/sun light.
-         *
-         */
-        uint8_t stepCount = 8;
-
-        /**
-         * Maximum shadow-occluder distance for screen-space contact shadows (world units).
-         * (30 cm by default)
-         *
-         * CAUTION: this parameter is ignored for all lights except the directional/sun light,
-         *          all other lights use the same value set for the directional/sun light.
-         *
-         */
-        float maxShadowDistance = 0.3;
     };
 
     //! Use Builder to construct a Light object instance
@@ -776,20 +733,6 @@ public:
      * @param i     Instance of the component obtained from getInstance().
      */
     bool isShadowCaster(Instance i) const noexcept;
-
-    /**
-     * Helper to process all components with a given function
-     * @tparam F    a void(Entity entity, Instance instance)
-     * @param func  a function of type F
-     */
-    template<typename F>
-    void forEachComponent(F func) noexcept {
-        utils::Entity const* const pEntity = getEntities();
-        for (size_t i = 0, c = getComponentCount(); i < c; i++) {
-            // Instance 0 is the invalid instance
-            func(pEntity[i], Instance(i + 1));
-        }
-    }
 };
 
 } // namespace filament
